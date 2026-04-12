@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload • CyberShield Club</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background:#0a0a0a; color:#00ff41; font-family:'VT323',monospace; margin:0; padding:20px; }
+        .terminal { max-width:700px; margin:50px auto; background:#111; border:3px solid #00ff41; padding:40px; text-align:center; }
+        input[type="file"] { font-family:'VT323',monospace; font-size:1.3rem; }
+        button { padding:15px 40px; font-size:1.4rem; background:#000; color:#00ff41; border:3px solid #00ff41; cursor:pointer; }
+        button:hover { background:#00ff41; color:#000; }
+        #status { margin-top:30px; font-size:1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <h1>root@cybershield:\~$ upload</h1>
+        <p>Upload your CTF write-up, report, or evidence (max 10MB)</p>
+        
+        <input type="file" id="fileInput" accept=".pdf,.md,.txt,.png,.jpg,.zip">
+        <br><br>
+        <button onclick="uploadFile()">UPLOAD TO CLUB VAULT</button>
+        
+        <div id="status"></div>
+        
+        <p style="margin-top:40px;">
+            <a href="dashboard.html" style="color:#00ff41;">← Back to Dashboard</a>
+        </p>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('cybershield_loggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        function uploadFile() {
+            const file = document.getElementById('fileInput').files[0];
+            const status = document.getElementById('status');
+            
+            if (!file) {
+                status.innerHTML = `<span style="color:#ff0000">No file selected!</span>`;
+                return;
+            }
+            
+            status.innerHTML = `✅ UPLOADING <span style="color:#ffff00">${file.name}</span> ...`;
+            
+            // Simulate real upload (2 seconds)
+            setTimeout(() => {
+                status.innerHTML = `🎉 FILE SAVED TO CLUB VAULT!<br>
+                <strong>\( {file.name}</strong> ( \){(file.size/1024/1024).toFixed(2)} MB)<br>
+                <span style="color:#ffff00">You can now view it in the shared drive (demo)</span>`;
+                
+                // Optional: You can later connect this to a real service (Firebase, GitHub API, etc.)
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
