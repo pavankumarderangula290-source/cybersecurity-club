@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard • CyberShield</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background:#0a0a0a; color:#00ff41; font-family:'VT323',monospace; margin:0; padding:20px; }
+        .terminal { max-width:900px; margin:20px auto; background:#111; border:3px solid #00ff41; padding:30px; }
+        .nav { text-align:center; margin-bottom:30px; }
+        .nav a { color:#00ff41; margin:0 15px; text-decoration:none; }
+        h1, h2 { text-align:center; }
+        table { width:100%; border-collapse:collapse; margin:20px 0; }
+        th, td { border:2px solid #00ff41; padding:10px; text-align:left; }
+        th { background:#1a1a1a; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="nav">
+            <a href="index.html">HOME</a>
+            <a href="upload.html">UPLOAD FILE</a>
+            <a href="#" onclick="logout()">LOGOUT</a>
+        </div>
+        <h1>root@cybershield:\~$ dashboard</h1>
+        <h2 id="welcome"></h2>
+
+        <h2>Your Role in CyberShield GitHub Repo</h2>
+        <div id="roleDisplay"></div>
+
+        <h2>Club Members & Roles (Live from GitHub)</h2>
+        <table id="membersTable">
+            <tr><th>Member</th><th>GitHub Role</th><th>Contributions</th></tr>
+        </table>
+    </div>
+
+    <script>
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Check if logged in
+        if (!localStorage.getItem('cybershield_loggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        const username = localStorage.getItem('cybershield_username') || 'Member';
+        document.getElementById('welcome').innerHTML = `Welcome back, <span style="color:#ffff00">${username}</span> 👾`;
+
+        // Display your personal role (you can expand this)
+        const roleHTML = `
+            <p style="font-size:1.4rem; text-align:center;">
+                Your Role: <strong style="color:#ffff00">ADMIN / CORE OPERATOR</strong><br>
+                Repo: pavankumarderangula290-source/cybersecurity-club
+            </p>`;
+        document.getElementById('roleDisplay').innerHTML = roleHTML;
+
+        // Fetch real GitHub contributors (public API - no token needed)
+        fetch('https://api.github.com/repos/pavankumarderangula290-source/cybersecurity-club/contributors')
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById('membersTable');
+                data.forEach(contributor => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><a href="\( {contributor.html_url}" target="_blank" style="color:#00ff41;"> \){contributor.login}</a></td>
+                        <td>Contributor</td>
+                        <td>${contributor.contributions} commits</td>`;
+                    table.appendChild(row);
+                });
+            })
+            .catch(() => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="3" style="color:#ff0000; text-align:center;">GitHub API temporarily unavailable — showing demo data</td>`;
+                document.getElementById('membersTable').appendChild(row);
+            });
+    </script>
+</body>
+</html>
