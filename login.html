@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • CyberShield Club</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'VT323', monospace;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        .terminal {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #111;
+            border: 3px solid #00ff41;
+            padding: 30px;
+            box-shadow: 0 0 30px #00ff41;
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        input, button {
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #000;
+            color: #00ff41;
+            border: 2px solid #00ff41;
+        }
+        button {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover { background: #00ff41; color: #000; }
+        .error { color: #ff0000; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <h1>root@cybershield:\~$ login</h1>
+        <form id="loginForm">
+            <label>GitHub Username / Member ID</label>
+            <input type="text" id="username" placeholder="e.g. pavanderangula" required>
+            <label>Password (demo: club2026)</label>
+            <input type="password" id="password" required>
+            <button type="submit">AUTHENTICATE</button>
+        </form>
+        <p class="error" id="errorMsg"></p>
+        <p style="text-align:center; margin-top:30px; font-size:1.1rem;">
+            <a href="index.html" style="color:#00ff41;">← Back to Home</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Demo credentials (you can add more members here)
+            if (password === 'club2026') {
+                localStorage.setItem('cybershield_loggedIn', 'true');
+                localStorage.setItem('cybershield_username', username);
+                window.location.href = 'dashboard.html';
+            } else {
+                document.getElementById('errorMsg').textContent = 'ACCESS DENIED — Incorrect credentials';
+            }
+        });
+    </script>
+</body>
+</html>
