@@ -1,107 +1,1702 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Cybersecurity Club - Official Website</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield Club — Elite Cybersecurity Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #00ff41;
+  --cyan: #00d4ff;
+  --red: #ff003c;
+  --dark: #020b06;
+  --darker: #010704;
+  --panel: rgba(0,255,65,0.04);
+  --border: rgba(0,255,65,0.2);
+  --text: #c8ffd4;
+  --dim: rgba(200,255,212,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--darker);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom Cursor */
+.cursor {
+  width: 12px; height: 12px;
+  border: 2px solid var(--green);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s, border-color 0.2s;
+  mix-blend-mode: screen;
+}
+.cursor-trail {
+  width: 4px; height: 4px;
+  background: var(--green);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.3s ease, opacity 0.3s;
+  opacity: 0.6;
+}
+
+/* Matrix Canvas */
+#matrix-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+/* Scanlines overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; width: 100%;
+  z-index: 900;
+  padding: 18px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(2,11,6,0.95) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(0,255,65,0.08);
+  backdrop-filter: blur(6px);
+}
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: var(--green);
+  letter-spacing: 3px;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 12px;
+}
+.nav-logo .shield-icon {
+  width: 32px; height: 36px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-logo .shield-icon::before {
+  content: '⬡';
+  font-size: 2rem;
+  color: var(--green);
+  line-height: 1;
+}
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--dim);
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.2s, text-shadow 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1px;
+  background: var(--green);
+  transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--green); text-shadow: 0 0 12px var(--green); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--green);
+  border: 1px solid var(--green);
+  padding: 8px 20px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.nav-cta:hover {
+  background: var(--green);
+  color: var(--dark);
+  box-shadow: 0 0 24px rgba(0,255,65,0.5);
+}
+
+/* HERO */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  overflow: hidden;
+}
+.hero-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,65,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,65,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridPulse 8s ease-in-out infinite;
+}
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.hero-hex-bg {
+  position: absolute; inset: 0;
+  overflow: hidden; pointer-events: none;
+}
+.hex-float {
+  position: absolute;
+  font-size: 8rem;
+  color: rgba(0,255,65,0.04);
+  animation: hexFloat linear infinite;
+  user-select: none;
+}
+@keyframes hexFloat {
+  0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+}
+.hero-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 0 24px;
+}
+.hero-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  animation: fadeUp 1s ease both;
+}
+.hero-tag::before, .hero-tag::after {
+  content: '';
+  height: 1px;
+  width: 60px;
+  background: linear-gradient(90deg, transparent, var(--cyan));
+}
+.hero-tag::after { transform: scaleX(-1); }
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -2px;
+  margin-bottom: 8px;
+  animation: fadeUp 1s ease 0.15s both;
+}
+.hero-title .line1 { color: #fff; }
+.hero-title .line2 {
+  color: var(--green);
+  text-shadow: 0 0 40px rgba(0,255,65,0.6), 0 0 80px rgba(0,255,65,0.3);
+  display: block;
+}
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: transparent;
+}
+.glitch::before {
+  left: 3px;
+  text-shadow: -2px 0 var(--red);
+  clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+  animation: glitch1 3s infinite linear;
+}
+.glitch::after {
+  left: -3px;
+  text-shadow: 2px 0 var(--cyan);
+  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  animation: glitch2 3s infinite linear;
+}
+@keyframes glitch1 {
+  0%, 90%, 100% { transform: translate(0); opacity: 0; }
+  92% { transform: translate(-4px, 2px); opacity: 1; }
+  94% { transform: translate(4px, -2px); opacity: 1; }
+  96% { transform: translate(0); opacity: 0; }
+}
+@keyframes glitch2 {
+  0%, 85%, 100% { transform: translate(0); opacity: 0; }
+  87% { transform: translate(4px, 1px); opacity: 1; }
+  89% { transform: translate(-4px, -1px); opacity: 1; }
+  91% { transform: translate(0); opacity: 0; }
+}
+.hero-subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--dim);
+  max-width: 520px;
+  margin: 24px auto 48px;
+  line-height: 1.7;
+  animation: fadeUp 1s ease 0.3s both;
+}
+.hero-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  animation: fadeUp 1s ease 0.45s both;
+}
+.btn-primary {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dark);
+  background: var(--green);
+  padding: 14px 36px;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  transition: box-shadow 0.3s;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+.btn-primary:hover { box-shadow: 0 0 40px rgba(0,255,65,0.8); }
+.btn-primary:hover::before { left: 100%; }
+.btn-secondary {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--green);
+  border: 1px solid rgba(0,255,65,0.4);
+  padding: 14px 36px;
+  text-decoration: none;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+}
+.btn-secondary:hover {
+  border-color: var(--green);
+  box-shadow: 0 0 20px rgba(0,255,65,0.3), inset 0 0 20px rgba(0,255,65,0.05);
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 72px;
+  animation: fadeUp 1s ease 0.6s both;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 20px rgba(0,255,65,0.5);
+  display: block;
+  line-height: 1;
+}
+.stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+.scroll-indicator {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: fadeUp 1s ease 1s both;
+  z-index: 2;
+}
+.scroll-line {
+  width: 1px; height: 50px;
+  background: linear-gradient(180deg, transparent, var(--green), transparent);
+  animation: scrollPulse 2s ease infinite;
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+}
+.scroll-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SECTION COMMONS */
+section {
+  position: relative;
+  z-index: 2;
+}
+.section-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.section-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: block;
+}
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: #fff;
+}
+.section-title span { color: var(--green); }
+.section-line {
+  width: 80px; height: 2px;
+  background: linear-gradient(90deg, var(--green), transparent);
+  margin: 20px auto 0;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+/* ABOUT */
+#about { padding: 120px 0; }
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+  height: 480px;
+}
+.about-terminal {
+  position: absolute;
+  top: 0; left: 0; right: 60px;
+  background: rgba(0,255,65,0.03);
+  border: 1px solid var(--border);
+  padding: 24px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+.terminal-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,255,65,0.1);
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: var(--green); }
+.terminal-title { color: var(--dim); font-size: 0.7rem; letter-spacing: 2px; margin-left: auto; }
+.terminal-line { margin-bottom: 8px; line-height: 1.6; }
+.t-prompt { color: var(--green); }
+.t-cmd { color: var(--cyan); }
+.t-out { color: var(--dim); padding-left: 20px; }
+.t-ok { color: var(--green); }
+.t-err { color: var(--red); }
+.t-cursor {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--green);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.about-deco {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 200px; height: 200px;
+  border: 1px solid rgba(0,212,255,0.2);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  animation: rotateSlow 20s linear infinite;
+}
+.about-deco::before {
+  content: '';
+  position: absolute; inset: 16px;
+  border: 1px solid rgba(0,255,65,0.15);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: rotateSlow 20s linear infinite reverse;
+}
+.about-deco-inner {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan);
+}
+@keyframes rotateSlow { to { transform: rotate(360deg); } }
+.about-text h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+.about-text h3 span { color: var(--green); }
+.about-text p {
+  color: var(--dim);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+.about-features {
+  list-style: none;
+  margin-top: 32px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.about-features li {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 0.95rem;
+}
+.feat-icon {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  color: var(--green);
+  clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  background: rgba(0,255,65,0.05);
+}
+.feat-text { color: var(--dim); line-height: 1.5; font-size: 0.9rem; }
+.feat-text strong { color: var(--text); }
+
+/* FOCUS AREAS */
+#focus { padding: 120px 0; background: linear-gradient(180deg, transparent 0%, rgba(0,255,65,0.02) 50%, transparent 100%); }
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.focus-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 40px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+.focus-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--green), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+.focus-card:hover::before { transform: scaleX(1); }
+.focus-card:hover {
+  border-color: rgba(0,255,65,0.5);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,255,65,0.1);
+}
+.focus-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  color: rgba(0,255,65,0.3);
+  margin-bottom: 20px;
+  display: block;
+}
+.focus-icon {
+  font-size: 2.4rem;
+  margin-bottom: 20px;
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(0,255,65,0.3));
+}
+.focus-card h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 14px;
+  letter-spacing: 1px;
+}
+.focus-card p {
+  font-size: 0.88rem;
+  color: var(--dim);
+  line-height: 1.7;
+  font-weight: 300;
+}
+.focus-tag {
+  display: inline-block;
+  margin-top: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-transform: uppercase;
+  border: 1px solid rgba(0,255,65,0.2);
+  padding: 4px 10px;
+}
+.focus-card-glow {
+  position: absolute;
+  bottom: -60px; right: -60px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(0,255,65,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+.focus-card:hover .focus-card-glow { opacity: 1; }
+
+/* EVENTS */
+#events { padding: 120px 0; }
+.events-list { display: flex; flex-direction: column; gap: 24px; }
+.event-item {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 32px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 28px 36px;
+  transition: border-color 0.3s, background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.event-item::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--green), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.event-item:hover::before { opacity: 1; }
+.event-item:hover {
+  border-color: rgba(0,255,65,0.4);
+  background: rgba(0,255,65,0.06);
+}
+.event-date {
+  text-align: center;
+  border-right: 1px solid rgba(0,255,65,0.1);
+  padding-right: 32px;
+}
+.event-day {
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+  display: block;
+}
+.event-month {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.event-info h4 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.event-meta {
+  display: flex; gap: 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--dim);
+  letter-spacing: 1px;
+}
+.event-meta span { display: flex; align-items: center; gap: 6px; }
+.event-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.badge-live { color: var(--red); border-color: var(--red); background: rgba(255,0,60,0.08); animation: badgePulse 2s infinite; }
+.badge-upcoming { color: var(--cyan); border-color: var(--cyan); background: rgba(0,212,255,0.08); }
+.badge-open { color: var(--green); border-color: var(--green); background: rgba(0,255,65,0.08); }
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,60,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(255,0,60,0); }
+}
+
+/* TEAM */
+#team { padding: 120px 0; background: linear-gradient(180deg, transparent 0%, rgba(0,212,255,0.015) 50%, transparent 100%); }
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.team-card {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 36px 24px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.team-card:hover {
+  border-color: rgba(0,255,65,0.5);
+  transform: translateY(-8px);
+}
+.team-avatar {
+  width: 80px; height: 80px;
+  margin: 0 auto 20px;
+  border: 2px solid var(--border);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  background: rgba(0,255,65,0.06);
+  position: relative;
+  transition: border-color 0.3s;
+}
+.team-card:hover .team-avatar { border-color: var(--green); }
+.team-avatar-ring {
+  position: absolute; inset: -6px;
+  border: 1px solid rgba(0,255,65,0.2);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: rotateSlow 6s linear infinite;
+}
+.team-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+.team-role {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.team-skills {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+}
+.skill-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--dim);
+  border: 1px solid rgba(0,255,65,0.15);
+  padding: 3px 8px;
+  background: rgba(0,255,65,0.03);
+}
+.team-scan {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  transform: translateY(-100%);
+  transition: none;
+}
+.team-card:hover .team-scan {
+  animation: scan 1.5s ease-in-out;
+}
+@keyframes scan {
+  0% { transform: translateY(-2px); opacity: 1; }
+  100% { transform: translateY(350px); opacity: 0; }
+}
+
+/* RESOURCES / CTF */
+#resources { padding: 120px 0; }
+.resources-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.resource-panel {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.resource-panel h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+}
+.resource-panel h3 .r-icon { font-size: 1.4rem; }
+.resource-panel p {
+  font-size: 0.88rem;
+  color: var(--dim);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.resource-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.resource-list li {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--dim);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,255,65,0.06);
+  transition: color 0.2s;
+}
+.resource-list li:hover { color: var(--green); }
+.resource-list li::before {
+  content: '▸';
+  color: var(--green);
+  font-size: 0.7rem;
+}
+.resource-panel .panel-corner {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 20px; height: 20px;
+  border-top: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+}
+
+/* ACHIEVEMENTS */
+#achievements { padding: 80px 0; }
+.achieve-bar {
+  background: linear-gradient(135deg, rgba(0,255,65,0.05) 0%, rgba(0,212,255,0.03) 100%);
+  border: 1px solid rgba(0,255,65,0.15);
+  border-top-color: rgba(0,255,65,0.3);
+  padding: 60px 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.achieve-bar::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--green), var(--cyan), var(--green), transparent);
+  animation: shimmer 3s linear infinite;
+}
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+.achieve-item { text-align: center; }
+.achieve-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--green);
+  text-shadow: 0 0 30px rgba(0,255,65,0.5);
+  line-height: 1;
+  display: block;
+  counter-increment: none;
+}
+.achieve-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-top: 8px;
+  display: block;
+}
+
+/* CONTACT */
+#contact { padding: 120px 0 100px; }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 80px;
+  align-items: start;
+}
+.contact-info h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.contact-info p {
+  color: var(--dim);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 36px;
+  font-size: 0.95rem;
+}
+.contact-links { display: flex; flex-direction: column; gap: 16px; }
+.contact-link {
+  display: flex; align-items: center; gap: 14px;
+  text-decoration: none;
+  color: var(--dim);
+  transition: color 0.2s;
+  font-size: 0.9rem;
+}
+.contact-link:hover { color: var(--green); }
+.contact-link-icon {
+  width: 40px; height: 40px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  background: rgba(0,255,65,0.04);
+  transition: border-color 0.2s, background 0.2s;
+}
+.contact-link:hover .contact-link-icon {
+  border-color: var(--green);
+  background: rgba(0,255,65,0.1);
+}
+.contact-form { display: flex; flex-direction: column; gap: 20px; }
+.form-group { position: relative; }
+.form-group label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  background: rgba(0,255,65,0.03);
+  border: 1px solid rgba(0,255,65,0.2);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 20px rgba(0,255,65,0.1);
+}
+.form-group textarea { height: 120px; resize: none; }
+.form-group select option { background: #020b06; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-submit {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dark);
+  background: var(--green);
+  border: none;
+  padding: 16px 40px;
+  cursor: pointer;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  transition: box-shadow 0.3s, transform 0.2s;
+  width: 100%;
+}
+.form-submit:hover {
+  box-shadow: 0 0 40px rgba(0,255,65,0.6);
+  transform: translateY(-2px);
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid rgba(0,255,65,0.1);
+  padding: 40px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+.footer-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 3px;
+}
+.footer-copy {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: rgba(200,255,212,0.3);
+}
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: rgba(200,255,212,0.3);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--green); }
+
+/* SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* TICKER */
+.ticker-wrap {
+  background: rgba(0,255,65,0.05);
+  border-top: 1px solid rgba(0,255,65,0.1);
+  border-bottom: 1px solid rgba(0,255,65,0.1);
+  overflow: hidden;
+  padding: 12px 0;
+  position: relative;
+  z-index: 2;
+}
+.ticker {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+}
+.ticker-item {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  color: rgba(0,255,65,0.5);
+  text-transform: uppercase;
+  padding: 0 40px;
+}
+.ticker-sep { color: var(--green); }
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Divider */
+.section-divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,65,0.2), rgba(0,212,255,0.2), transparent);
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
+</style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">🔐 Cybersecurity Club</div>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#events">Events</a></li>
-                <li><a href="#resources">Resources</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<!-- Matrix Background -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <div class="shield-icon"></div>
+    CyberShield
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#focus">Focus</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Join Now</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-hex-bg" id="hexBg"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">
+      <span>Est. 2021 · Student Cybersecurity Community</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="line1">DEFEND THE</span>
+      <span class="line2 glitch" data-text="DIGITAL WORLD">DIGITAL WORLD</span>
+    </h1>
+    <p class="hero-subtitle">
+      The elite student-led cybersecurity club where we hack, defend, learn, and compete. 
+      From CTF battles to red team simulations — we build the next generation of security professionals.
+    </p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">Join the Club</a>
+      <a href="#focus" class="btn-secondary">Explore →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num" data-target="240">000</span>
+        <span class="stat-label">Active Members</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" data-target="58">000</span>
+        <span class="stat-label">CTF Challenges Won</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" data-target="32">000</span>
+        <span class="stat-label">Workshops Held</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll</span>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item">Capture The Flag <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Penetration Testing <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Reverse Engineering <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Network Security <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Malware Analysis <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Cryptography <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Web Exploitation <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">OSINT <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Forensics <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Red vs Blue Team <span class="ticker-sep">⬡</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">Capture The Flag <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Penetration Testing <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Reverse Engineering <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Network Security <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Malware Analysis <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Cryptography <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Web Exploitation <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">OSINT <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Forensics <span class="ticker-sep">⬡</span></span>
+    <span class="ticker-item">Red vs Blue Team <span class="ticker-sep">⬡</span></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-visual reveal">
+        <div class="about-terminal">
+          <div class="terminal-header">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="terminal-title">cybershield@terminal ~ </span>
+          </div>
+          <div class="terminal-line"><span class="t-prompt">root@club:~$</span> <span class="t-cmd">whoami</span></div>
+          <div class="terminal-line"><span class="t-out">CyberShield Security Club — Est. 2021</span></div>
+          <div class="terminal-line" style="margin-top:8px"><span class="t-prompt">root@club:~$</span> <span class="t-cmd">cat mission.txt</span></div>
+          <div class="terminal-line"><span class="t-out">Empowering students to defend cyberspace</span></div>
+          <div class="terminal-line"><span class="t-out">through knowledge, practice, and community.</span></div>
+          <div class="terminal-line" style="margin-top:8px"><span class="t-prompt">root@club:~$</span> <span class="t-cmd">ls ./achievements/</span></div>
+          <div class="terminal-line"><span class="t-ok">✓ National CTF Champions 2024</span></div>
+          <div class="terminal-line"><span class="t-ok">✓ 3x Regional Finalists</span></div>
+          <div class="terminal-line"><span class="t-ok">✓ Industry Partnerships: 12</span></div>
+          <div class="terminal-line"><span class="t-err">! CVE-2024-CLUB: Unmatched excellence</span></div>
+          <div class="terminal-line" style="margin-top:8px"><span class="t-prompt">root@club:~$</span> <span class="t-cmd">join --apply</span><span class="t-cursor"></span></div>
         </div>
-    </nav>
-
-    <header id="home" class="hero">
-        <div class="hero-content">
-            <h1>Welcome to the Cybersecurity Club</h1>
-            <p>Protecting the Digital World, One Step at a Time</p>
-            <button class="cta-button">Join Us Today</button>
+        <div class="about-deco">
+          <span class="about-deco-inner">🛡️</span>
         </div>
-    </header>
+      </div>
+      <div class="about-text reveal reveal-delay-2">
+        <h3>We Are <span>CyberShield</span></h3>
+        <p>
+          A student-run organization dedicated to cybersecurity education, ethical hacking, and building a 
+          community of security professionals. We believe every student deserves access to real-world security training.
+        </p>
+        <p>
+          Whether you're a complete beginner curious about how the internet works, or an experienced developer 
+          wanting to specialize in security — CyberShield has a place for you.
+        </p>
+        <ul class="about-features">
+          <li>
+            <div class="feat-icon">🔬</div>
+            <div class="feat-text"><strong>Hands-on Learning</strong> — Real lab environments, not just theory. Practice on intentionally vulnerable systems.</div>
+          </li>
+          <li>
+            <div class="feat-icon">🏆</div>
+            <div class="feat-text"><strong>Competitive CTF Team</strong> — Compete nationally and internationally in Capture The Flag competitions.</div>
+          </li>
+          <li>
+            <div class="feat-icon">🤝</div>
+            <div class="feat-text"><strong>Industry Mentors</strong> — Direct access to security professionals from top companies and government agencies.</div>
+          </li>
+          <li>
+            <div class="feat-icon">📜</div>
+            <div class="feat-text"><strong>Certification Prep</strong> — Study groups for CEH, CompTIA Security+, OSCP and more.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <main>
-        <section id="about" class="about">
-            <div class="container">
-                <h2>About Our Club</h2>
-                <p>We are a dedicated community of cybersecurity enthusiasts committed to raising awareness, sharing knowledge, and developing skills in cybersecurity. Our mission is to create a safe learning environment for beginners and experts alike.</p>
-                <div class="features">
-                    <div class="feature">
-                        <h3>🎓 Education</h3>
-                        <p>Learn cutting-edge cybersecurity concepts and practices</p>
-                    </div>
-                    <div class="feature">
-                        <h3>🤝 Community</h3>
-                        <p>Connect with like-minded security professionals</p>
-                    </div>
-                    <div class="feature">
-                        <h3>🔬 Hands-On</h3>
-                        <p>Participate in workshops, CTFs, and real-world scenarios</p>
-                    </div>
-                </div>
+<div class="section-divider"></div>
+
+<!-- FOCUS AREAS -->
+<section id="focus">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">// What We Do</span>
+      <h2 class="section-title">Our <span>Focus Areas</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="focus-grid">
+      <div class="focus-card reveal reveal-delay-1">
+        <span class="focus-num">01</span>
+        <span class="focus-icon">🎯</span>
+        <h3>Capture The Flag</h3>
+        <p>Compete in global CTF events. Solve challenges in web exploitation, binary analysis, crypto, forensics, and OSINT to sharpen your skills under pressure.</p>
+        <span class="focus-tag">Competitive</span>
+        <div class="focus-card-glow"></div>
+      </div>
+      <div class="focus-card reveal reveal-delay-2">
+        <span class="focus-num">02</span>
+        <span class="focus-icon">🔓</span>
+        <h3>Penetration Testing</h3>
+        <p>Learn offensive security methodologies. Practice on our private lab with intentionally vulnerable machines — ethically, legally, and responsibly.</p>
+        <span class="focus-tag">Offensive</span>
+        <div class="focus-card-glow"></div>
+      </div>
+      <div class="focus-card reveal reveal-delay-3">
+        <span class="focus-num">03</span>
+        <span class="focus-icon">🔐</span>
+        <h3>Cryptography</h3>
+        <p>From classical ciphers to modern elliptic curve cryptography. Understand how data is secured and how encryption protocols can be broken.</p>
+        <span class="focus-tag">Theory + Practice</span>
+        <div class="focus-card-glow"></div>
+      </div>
+      <div class="focus-card reveal reveal-delay-1">
+        <span class="focus-num">04</span>
+        <span class="focus-icon">🦠</span>
+        <h3>Malware Analysis</h3>
+        <p>Reverse-engineer malicious software. Use static and dynamic analysis to understand how viruses, ransomware, and trojans operate.</p>
+        <span class="focus-tag">Reverse Engineering</span>
+        <div class="focus-card-glow"></div>
+      </div>
+      <div class="focus-card reveal reveal-delay-2">
+        <span class="focus-num">05</span>
+        <span class="focus-icon">🌐</span>
+        <h3>Web Security</h3>
+        <p>Master OWASP Top 10 vulnerabilities. Learn SQL injection, XSS, CSRF, SSRF and more through hands-on labs and real-world bug bounty scenarios.</p>
+        <span class="focus-tag">Exploitation</span>
+        <div class="focus-card-glow"></div>
+      </div>
+      <div class="focus-card reveal reveal-delay-3">
+        <span class="focus-num">06</span>
+        <span class="focus-icon">🛡️</span>
+        <h3>Blue Team Defense</h3>
+        <p>Incident response, threat hunting, SIEM tools, log analysis, and network monitoring. Build the skills to detect and respond to real threats.</p>
+        <span class="focus-tag">Defensive</span>
+        <div class="focus-card-glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS BAR -->
+<section id="achievements">
+  <div class="container">
+    <div class="achieve-bar reveal">
+      <div class="achieve-item">
+        <span class="achieve-num" data-target="14">0</span>
+        <span class="achieve-label">CTF Competitions Won</span>
+      </div>
+      <div class="achieve-item">
+        <span class="achieve-num" data-target="240">0</span>
+        <span class="achieve-label">Active Members</span>
+      </div>
+      <div class="achieve-item">
+        <span class="achieve-num" data-target="12">0</span>
+        <span class="achieve-label">Industry Partners</span>
+      </div>
+      <div class="achieve-item">
+        <span class="achieve-num" data-target="97">0</span>
+        <span class="achieve-label">% Job Placement</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- EVENTS -->
+<section id="events">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">// Upcoming</span>
+      <h2 class="section-title">Events & <span>Operations</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-item reveal">
+        <div class="event-date">
+          <span class="event-day">18</span>
+          <span class="event-month">Apr</span>
+        </div>
+        <div class="event-info">
+          <h4>Weekly CTF Practice Session</h4>
+          <div class="event-meta">
+            <span>⏱ 14:00 – 17:00</span>
+            <span>📍 Lab B-204</span>
+            <span>👥 All Levels</span>
+          </div>
+        </div>
+        <span class="event-badge badge-upcoming">Upcoming</span>
+      </div>
+      <div class="event-item reveal reveal-delay-1">
+        <div class="event-date">
+          <span class="event-day">24</span>
+          <span class="event-month">Apr</span>
+        </div>
+        <div class="event-info">
+          <h4>Red Team vs Blue Team Live Simulation</h4>
+          <div class="event-meta">
+            <span>⏱ 09:00 – 18:00</span>
+            <span>📍 Cyber Lab + Online</span>
+            <span>👥 Intermediate+</span>
+          </div>
+        </div>
+        <span class="event-badge badge-open">Open</span>
+      </div>
+      <div class="event-item reveal reveal-delay-2">
+        <div class="event-date">
+          <span class="event-day">02</span>
+          <span class="event-month">May</span>
+        </div>
+        <div class="event-info">
+          <h4>Bug Bounty Workshop — HackerOne Platform</h4>
+          <div class="event-meta">
+            <span>⏱ 15:00 – 17:30</span>
+            <span>📍 Room A-101 + Stream</span>
+            <span>👥 All Members</span>
+          </div>
+        </div>
+        <span class="event-badge badge-open">Open</span>
+      </div>
+      <div class="event-item reveal reveal-delay-3">
+        <div class="event-date">
+          <span class="event-day">10</span>
+          <span class="event-month">May</span>
+        </div>
+        <div class="event-info">
+          <h4>National Collegiate CTF — CyberShield Team Qualifier</h4>
+          <div class="event-meta">
+            <span>⏱ 00:00 – 48:00 hrs</span>
+            <span>📍 Remote / Online</span>
+            <span>👥 Team of 5</span>
+          </div>
+        </div>
+        <span class="event-badge badge-upcoming">Registration Open</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">// The Operators</span>
+      <h2 class="section-title">Meet the <span>Core Team</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal reveal-delay-1">
+        <div class="team-scan"></div>
+        <div class="team-avatar">
+          <div class="team-avatar-ring"></div>
+          👾
+        </div>
+        <div class="team-name">Pavan Kumar</div>
+        <div class="team-role">Club President</div>
+        <div class="team-skills">
+          <span class="skill-tag">Pentest</span>
+          <span class="skill-tag">CTF</span>
+          <span class="skill-tag">OSCP</span>
+        </div>
+      </div>
+      <div class="team-card reveal reveal-delay-2">
+        <div class="team-scan"></div>
+        <div class="team-avatar">
+          <div class="team-avatar-ring"></div>
+          🔬
+        </div>
+        <div class="team-name">Arjun Reddy</div>
+        <div class="team-role">Malware Analyst</div>
+        <div class="team-skills">
+          <span class="skill-tag">Reverse Eng</span>
+          <span class="skill-tag">IDA Pro</span>
+          <span class="skill-tag">Ghidra</span>
+        </div>
+      </div>
+      <div class="team-card reveal reveal-delay-3">
+        <div class="team-scan"></div>
+        <div class="team-avatar">
+          <div class="team-avatar-ring"></div>
+          🌐
+        </div>
+        <div class="team-name">Sneha Sharma</div>
+        <div class="team-role">Web Security Lead</div>
+        <div class="team-skills">
+          <span class="skill-tag">Burp Suite</span>
+          <span class="skill-tag">OWASP</span>
+          <span class="skill-tag">Bug Bounty</span>
+        </div>
+      </div>
+      <div class="team-card reveal reveal-delay-4">
+        <div class="team-scan"></div>
+        <div class="team-avatar">
+          <div class="team-avatar-ring"></div>
+          🛡️
+        </div>
+        <div class="team-name">Dev Patel</div>
+        <div class="team-role">Blue Team Captain</div>
+        <div class="team-skills">
+          <span class="skill-tag">SIEM</span>
+          <span class="skill-tag">Splunk</span>
+          <span class="skill-tag">Forensics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- RESOURCES -->
+<section id="resources">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">// Arsenal</span>
+      <h2 class="section-title">Resources &amp; <span>Tools</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="resources-grid">
+      <div class="resource-panel reveal reveal-delay-1">
+        <div class="panel-corner"></div>
+        <h3><span class="r-icon">🎯</span> CTF Platforms</h3>
+        <p>Practice platforms where members sharpen their skills daily. Ranked challenges from beginner to expert level.</p>
+        <ul class="resource-list">
+          <li>HackTheBox — Machine-based learning labs</li>
+          <li>TryHackMe — Guided learning paths</li>
+          <li>PicoCTF — Beginner-friendly Carnegie Mellon CTF</li>
+          <li>CTFtime.org — Global CTF calendar tracker</li>
+          <li>pwn.college — Binary exploitation focus</li>
+        </ul>
+      </div>
+      <div class="resource-panel reveal reveal-delay-2">
+        <div class="panel-corner"></div>
+        <h3><span class="r-icon">🔧</span> Essential Tools</h3>
+        <p>The standard toolkit every CyberShield member learns to master during their first semester.</p>
+        <ul class="resource-list">
+          <li>Kali Linux — Attack distribution</li>
+          <li>Burp Suite — Web proxy &amp; scanner</li>
+          <li>Wireshark — Packet analyzer</li>
+          <li>Metasploit — Exploitation framework</li>
+          <li>Ghidra / IDA Pro — Binary analysis</li>
+        </ul>
+      </div>
+      <div class="resource-panel reveal reveal-delay-1">
+        <div class="panel-corner"></div>
+        <h3><span class="r-icon">📚</span> Learning Paths</h3>
+        <p>Curated roadmaps from zero knowledge to industry-ready professional, tailored for every specialization.</p>
+        <ul class="resource-list">
+          <li>Beginner Path — Networking + Linux fundamentals</li>
+          <li>Web Hacker Path — OWASP, Burp, XSS, SQLi</li>
+          <li>Malware Path — Assembly, RE, sandbox analysis</li>
+          <li>Certification Track — OSCP / CEH / Sec+ prep</li>
+          <li>CTF Specialist — Problem-solving methodology</li>
+        </ul>
+      </div>
+      <div class="resource-panel reveal reveal-delay-2">
+        <div class="panel-corner"></div>
+        <h3><span class="r-icon">🏅</span> Certifications</h3>
+        <p>Industry-recognized certifications that our members actively pursue with group study support and sponsorships.</p>
+        <ul class="resource-list">
+          <li>OSCP — Offensive Security Certified Professional</li>
+          <li>CEH — Certified Ethical Hacker (EC-Council)</li>
+          <li>CompTIA Security+ — Foundational cert</li>
+          <li>eJPT — eLearnSecurity Junior Pentester</li>
+          <li>GCIH — GIAC Certified Incident Handler</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">// Initialize Connection</span>
+      <h2 class="section-title">Join <span>CyberShield</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <h3>Ready to Start?</h3>
+        <p>
+          Whether you're a curious freshman or a seasoned developer, CyberShield welcomes everyone. 
+          Fill out the form to apply for membership or just reach out — we'll guide you to the right path.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:cybershield@university.edu" class="contact-link">
+            <div class="contact-link-icon">✉️</div>
+            <span>cybershield@university.edu</span>
+          </a>
+          <a href="#" class="contact-link">
+            <div class="contact-link-icon">💬</div>
+            <span>Discord Server — discord.gg/cybershield</span>
+          </a>
+          <a href="#" class="contact-link">
+            <div class="contact-link-icon">📸</div>
+            <span>Instagram — @cybershield_club</span>
+          </a>
+          <a href="#" class="contact-link">
+            <div class="contact-link-icon">🐙</div>
+            <span>GitHub — github.com/cybershield-club</span>
+          </a>
+          <a href="#" class="contact-link">
+            <div class="contact-link-icon">🐦</div>
+            <span>Twitter/X — @CyberShieldClub</span>
+          </a>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" placeholder="Pavan Kumar">
             </div>
-        </section>
-
-        <section id="events" class="events">
-            <div class="container">
-                <h2>Upcoming Events</h2>
-                <div class="event-list">
-                    <div class="event-card">
-                        <h3>Monthly Security Workshop</h3>
-                        <p>Learn about the latest security threats and mitigation strategies</p>
-                        <p class="date">Every Second Friday - 6:00 PM</p>
-                    </div>
-                    <div class="event-card">
-                        <h3>CTF Competition</h3>
-                        <p>Capture The Flag competitions to test your skills</p>
-                        <p class="date">Monthly Challenge</p>
-                    </div>
-                    <div class="event-card">
-                        <h3>Guest Speaker Series</h3>
-                        <p>Industry experts sharing insights on cybersecurity careers</p>
-                        <p class="date">Quarterly Events</p>
-                    </div>
-                </div>
+            <div class="form-group">
+              <label>Student ID</label>
+              <input type="text" placeholder="STU-2024-XXXX">
             </div>
-        </section>
+          </div>
+          <div class="form-group">
+            <label>University Email</label>
+            <input type="email" placeholder="you@university.edu">
+          </div>
+          <div class="form-group">
+            <label>Your Level</label>
+            <select>
+              <option value="">Select experience level</option>
+              <option>Complete Beginner — I want to learn</option>
+              <option>Beginner — I know some Linux/networking</option>
+              <option>Intermediate — I've done some CTFs</option>
+              <option>Advanced — I have certifications</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Area of Interest</label>
+            <select>
+              <option value="">What excites you most?</option>
+              <option>Web Security / Bug Bounty</option>
+              <option>Penetration Testing</option>
+              <option>Malware Analysis / Reverse Engineering</option>
+              <option>Blue Team / SOC / Incident Response</option>
+              <option>CTF Competitions</option>
+              <option>Cryptography</option>
+              <option>OSINT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Why CyberShield?</label>
+            <textarea placeholder="Tell us why you want to join and what you hope to learn..."></textarea>
+          </div>
+          <button class="form-submit">⬡ Submit Application</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <section id="resources" class="resources">
-            <div class="container">
-                <h2>Learning Resources</h2>
-                <ul class="resource-list">
-                    <li>📚 Cybersecurity Fundamentals</li>
-                    <li>🔐 Cryptography & Encryption</li>
-                    <li>🛡️ Network Security</li>
-                    <li>🔍 Penetration Testing</li>
-                    <li>🚨 Incident Response</li>
-                    <li>📊 Risk Management</li>
-                </ul>
-            </div>
-        </section>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">CyberShield</div>
+  <div class="footer-copy">© 2025 CyberShield Club · Built with ❤️ by the community</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Code of Ethics</a>
+    <a href="#">GitHub</a>
+  </div>
+</footer>
 
-        <section id="contact" class="contact">
-            <div class="container">
-                <h2>Get In Touch</h2>
-                <p>Interested in joining? Have questions? We'd love to hear from you!</p>
-                <div class="contact-info">
-                    <p>📧 Email: cybersecurity.club@example.com</p>
-                    <p>📱 Discord: Join our community server</p>
-                    <p>🐦 Twitter: @CybersecurityClub</p>
-                </div>
-            </div>
-        </section>
-    </main>
+<script>
+// ── Matrix Rain ──────────────────────────────────────────────
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+let drops = [];
 
-    <footer>
-        <p>&copy; 2026 Cybersecurity Club. All rights reserved. | Secure. Educate. Protect.</p>
-    </footer>
+function initMatrix() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const cols = Math.floor(canvas.width / 20);
+  drops = Array(cols).fill(1);
+}
+
+const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF<>{}[]|/\\';
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(2, 11, 6, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff41';
+  ctx.font = '14px Share Tech Mono, monospace';
+  drops.forEach((y, i) => {
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(char, i * 20, y * 20);
+    if (y * 20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  });
+}
+
+initMatrix();
+window.addEventListener('resize', initMatrix);
+setInterval(drawMatrix, 60);
+
+// ── Floating Hexagons ────────────────────────────────────────
+const hexBg = document.getElementById('hexBg');
+for (let i = 0; i < 8; i++) {
+  const hex = document.createElement('div');
+  hex.className = 'hex-float';
+  hex.textContent = '⬡';
+  hex.style.left = Math.random() * 100 + 'vw';
+  hex.style.animationDuration = (10 + Math.random() * 20) + 's';
+  hex.style.animationDelay = (-Math.random() * 20) + 's';
+  hex.style.fontSize = (4 + Math.random() * 8) + 'rem';
+  hexBg.appendChild(hex);
+}
+
+// ── Custom Cursor ────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursorTrail');
+let mx = 0, my = 0, tx = 0, ty = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+});
+
+function animateTrail() {
+  tx += (mx - tx) * 0.15;
+  ty += (my - ty) * 0.15;
+  trail.style.transform = `translate(${tx - 2}px, ${ty - 2}px)`;
+  requestAnimationFrame(animateTrail);
+}
+animateTrail();
+
+document.addEventListener('mousedown', () => cursor.style.transform += ' scale(1.8)');
+document.addEventListener('mouseup', () => {});
+
+// ── Scroll Reveal ────────────────────────────────────────────
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+revealEls.forEach(el => observer.observe(el));
+
+// ── Counter Animation ────────────────────────────────────────
+function animateCount(el, target, duration = 2000) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) { start = target; clearInterval(timer); }
+    el.textContent = Math.floor(start) + (el.dataset.suffix || '');
+  }, 16);
+}
+
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      const target = parseInt(el.dataset.target);
+      if (target) animateCount(el, target);
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('[data-target]').forEach(el => counterObserver.observe(el));
+
+// ── Nav shrink on scroll ─────────────────────────────────────
+const nav = document.querySelector('nav');
+window.addEventListener('scroll', () => {
+  nav.style.padding = window.scrollY > 60 ? '12px 60px' : '18px 60px';
+});
+
+// ── Typing Effect for hero subtitle ─────────────────────────
+// (already visible via CSS — just ensuring clean load)
+</script>
 </body>
 </html>
