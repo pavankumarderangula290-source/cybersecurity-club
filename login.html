@@ -11,9 +11,9 @@
         input, button { font-family:'VT323',monospace; font-size:1.4rem; width:100%; padding:14px; margin:12px 0; background:#000; color:#00ff41; border:2px solid #00ff41; }
         button { cursor:pointer; transition:0.3s; }
         button:hover { background:#00ff41; color:#000; }
-        .recaptcha-container { margin:20px 0; }
+        .recaptcha-container { margin:20px 0; text-align:center; }
         .success { color:#ffff00; text-align:center; font-size:1.5rem; }
-        #status { text-align:center; margin:15px 0; min-height:28px; }
+        #status { text-align:center; margin:15px 0; min-height:28px; color:#ff0000; }
     </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
         
         <div id="step1">
             <label>📱 Mobile Number (with country code)</label>
-            <input type="tel" id="mobile" placeholder="+91 9876543210" required>
+            <input type="tel" id="mobile" placeholder="+91 9876543210" value="+91 8317635568" required>
             <div id="recaptcha-container" class="recaptcha-container"></div>
             <button onclick="sendOTP()">SEND REAL SMS OTP</button>
             <div id="status"></div>
@@ -40,19 +40,18 @@
         </p>
     </div>
 
-    <!-- Firebase SDK (compat version - perfect for GitHub Pages) -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBnC2Y0sxEfizqAMA0yugO9vmIHPLX1s0",
-            authDomain: "cybershield-club.firebaseapp.com",
-            projectId: "cybershield-club",
-            storageBucket: "cybershield-club.firebasestorage.app",
-            messagingSenderId: "454111504815",
-            appId: "1:454111504815:web:c75379c6b90fe6d467675a",
-            measurementId: "G-3SD5SGVM43"
+          apiKey: "AIzaSyBnCzY0sxEfiZqAMA0yugpO9mmIHPlX1s0",
+          authDomain: "cybershield-club.firebaseapp.com",
+          projectId: "cybershield-club",
+          storageBucket: "cybershield-club.firebasestorage.app",
+          messagingSenderId: "454111504815",
+          appId: "1:454111504815:web:c753796cb90fe6d467675a",
+          measurementId: "G-3SDS5GVM43"
         };
 
         let confirmationResult;
@@ -61,24 +60,23 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        function setupRecaptcha() {
+        // Setup reCAPTCHA ON PAGE LOAD (important fix)
+        window.onload = function() {
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                'size': 'invisible',
+                'size': 'normal',           // Changed to visible for debugging
                 'callback': function(response) {}
             });
-        }
+        };
 
         function sendOTP() {
             const mobileInput = document.getElementById('mobile').value.trim();
             if (!mobileInput.startsWith('+')) {
-                document.getElementById('status').innerHTML = `<span style="color:#ff0000">Use international format (+91 ...)</span>`;
+                document.getElementById('status').innerHTML = `Use international format (+91 ...)`;
                 return;
             }
 
             userMobile = mobileInput;
             document.getElementById('status').innerHTML = `Sending OTP to <strong>${userMobile}</strong>...`;
-
-            setupRecaptcha();
 
             const appVerifier = window.recaptchaVerifier;
             auth.signInWithPhoneNumber(userMobile, appVerifier)
@@ -89,7 +87,7 @@
                     document.getElementById('step2').style.display = 'block';
                 })
                 .catch((error) => {
-                    document.getElementById('status').innerHTML = `<span style="color:#ff0000">Error: ${error.message}</span>`;
+                    document.getElementById('status').innerHTML = `Error: ${error.message}`;
                     console.error(error);
                 });
         }
@@ -114,14 +112,11 @@
                     localStorage.setItem('cybershield_user', JSON.stringify(userData));
                     localStorage.setItem('cybershield_loggedIn', 'true');
 
-                    document.getElementById('status2').innerHTML = `<span class="success">✅ VERIFIED SUCCESSFULLY!<br>Redirecting to dashboard...</span>`;
-                    
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+                    document.getElementById('status2').innerHTML = `<span class="success">✅ VERIFIED SUCCESSFULLY!<br>Redirecting...</span>`;
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 })
                 .catch((error) => {
-                    document.getElementById('status2').innerHTML = `<span style="color:#ff0000">Invalid OTP or expired. Try again.</span>`;
+                    document.getElementById('status2').innerHTML = `Invalid OTP or expired. Try again.`;
                 });
         }
     </script>
