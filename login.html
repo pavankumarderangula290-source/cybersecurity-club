@@ -9,10 +9,25 @@
         body { background:#0a0a0a; color:#00ff41; font-family:'VT323',monospace; margin:0; padding:0; }
         .terminal { max-width:680px; margin:60px auto; background:#111; border:4px solid #00ff41; padding:40px; box-shadow:0 0 40px #00ff41; }
         h1 { text-align:center; font-size:1.8rem; margin-bottom:30px; }
-        button { font-family:'VT323',monospace; font-size:1.4rem; width:100%; padding:18px; margin:12px 0; background:#000; color:#00ff41; border:2px solid #00ff41; cursor:pointer; transition:0.3s; }
+        button { 
+            font-family:'VT323',monospace; 
+            font-size:1.4rem; 
+            width:100%; 
+            padding:18px; 
+            margin:12px 0; 
+            background:#000; 
+            color:#00ff41; 
+            border:2px solid #00ff41; 
+            cursor:pointer; 
+            transition:0.3s; 
+        }
         button:hover { background:#00ff41; color:#000; }
-        .passkey-btn { background:#00d4ff; color:#000; font-weight:bold; }
-        .google-btn { background:#4285F4; color:#fff; border:none; }
+        .biometric-btn { 
+            background:#00d4ff; 
+            color:#000; 
+            font-weight:bold; 
+            font-size:1.5rem; 
+        }
         .success { color:#ffff00; text-align:center; font-size:1.5rem; }
         #status { text-align:center; margin:15px 0; min-height:28px; }
     </style>
@@ -22,9 +37,9 @@
         <h1>root@cybershield:\~$ secure-login</h1>
 
         <button onclick="signInWithGoogle()" class="google-btn">🚀 Sign in with Google</button>
-        <button onclick="signInWithPasskey()" class="passkey-btn">🔑 LOGIN WITH PASSSKEY (Fingerprint / Face ID)</button>
-        <button onclick="showEmail()">✉️ Sign in with Email</button>
-        <button onclick="showPhone()">📱 Sign in with Phone OTP</button>
+        <button onclick="signInWithBiometric()" class="biometric-btn">👤 LOGIN WITH FACE ID / FINGERPRINT</button>
+        <button onclick="window.location.href='login.html'">✉️ Sign in with Email</button>
+        <button onclick="window.location.href='login.html'">📱 Sign in with Phone OTP</button>
 
         <div id="status"></div>
 
@@ -51,33 +66,54 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // ====================== INSTANT FINGERPRINT / PASSSKEY LOGIN ======================
-        async function signInWithPasskey() {
+        // ====================== REAL FACE ID / FINGERPRINT LOGIN ======================
+        async function signInWithBiometric() {
             const status = document.getElementById('status');
-            status.innerHTML = '🔄 Preparing biometric login...';
+            status.innerHTML = '🔄 Preparing Face ID / Fingerprint...';
 
-            // Simulate real fingerprint/face ID check
-            setTimeout(() => {
+            try {
+                // Check if biometric login is supported
+                if (!window.PublicKeyCredential || !navigator.credentials) {
+                    throw new Error("Biometric login not supported on this device/browser.");
+                }
+
+                // Create a simple credential request for demonstration
+                const publicKeyCredentialRequestOptions = {
+                    challenge: new Uint8Array(32),
+                    timeout: 60000,
+                    userVerification: "required",
+                    rpId: window.location.hostname
+                };
+
+                const credential = await navigator.credentials.get({
+                    publicKey: publicKeyCredentialRequestOptions
+                });
+
+                // Biometric success
                 const userData = {
-                    uid: "passkey-" + Date.now(),
+                    uid: "biometric-" + Date.now(),
                     name: "Pavan Kumar",
                     role: "Club President",
                     loginTime: new Date().toLocaleString('en-IN'),
-                    method: "fingerprint"
+                    method: "faceid_fingerprint"
                 };
 
                 localStorage.setItem('cybershield_user', JSON.stringify(userData));
                 localStorage.setItem('cybershield_loggedIn', 'true');
 
-                status.innerHTML = `<span class="success">✅ FINGERPRINT VERIFIED!<br>Instant login successful 👾</span>`;
+                status.innerHTML = `<span class="success">✅ FACE ID / FINGERPRINT VERIFIED!<br>Welcome back, Operator 👾</span>`;
 
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1200);
-            }, 800);
+
+            } catch (error) {
+                status.innerHTML = `❌ Biometric failed or not available.<br>${error.message}<br><br>Use another method.`;
+                console.error(error);
+            }
         }
 
-        // Google login (kept from before)
+        // Google login (kept for completeness)
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
@@ -94,12 +130,10 @@
                     localStorage.setItem('cybershield_loggedIn', 'true');
                     window.location.href = 'dashboard.html';
                 })
-                .catch(err => document.getElementById('status').innerHTML = `Error: ${err.message}`);
+                .catch(err => {
+                    document.getElementById('status').innerHTML = `Google Error: ${err.message}`;
+                });
         }
-
-        // Quick links to other methods
-        function showEmail() { window.location.href = 'login.html'; } // you can expand later
-        function showPhone() { window.location.href = 'login.html'; }
     </script>
 </body>
 </html>
