@@ -37,7 +37,7 @@
         <h1>root@cybershield:\~$ secure-login</h1>
 
         <button onclick="signInWithGoogle()" class="google-btn">🚀 Sign in with Google</button>
-        <button onclick="signInWithBiometric()" class="biometric-btn">👤 LOGIN WITH FACE ID / FINGERPRINT</button>
+        <button onclick="handleBiometric()" class="biometric-btn">👤 LOGIN WITH FACE ID / FINGERPRINT</button>
         <button onclick="window.location.href='login.html'">✉️ Sign in with Email</button>
         <button onclick="window.location.href='login.html'">📱 Sign in with Phone OTP</button>
 
@@ -66,32 +66,25 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // ====================== REAL FACE ID / FINGERPRINT LOGIN ======================
-        async function signInWithBiometric() {
+        // ====================== FULL PASSSKEY REGISTRATION + LOGIN ======================
+        async function handleBiometric() {
             const status = document.getElementById('status');
-            status.innerHTML = '🔄 Preparing Face ID / Fingerprint...';
+            status.innerHTML = '🔄 Checking for Passkey...';
 
             try {
-                // Check if biometric login is supported
-                if (!window.PublicKeyCredential || !navigator.credentials) {
-                    throw new Error("Biometric login not supported on this device/browser.");
-                }
-
-                // Create a simple credential request for demonstration
-                const publicKeyCredentialRequestOptions = {
-                    challenge: new Uint8Array(32),
-                    timeout: 60000,
-                    userVerification: "required",
-                    rpId: window.location.hostname
-                };
-
-                const credential = await navigator.credentials.get({
-                    publicKey: publicKeyCredentialRequestOptions
+                // Try to login first (authenticate)
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: new Uint8Array(32),
+                        rpId: window.location.hostname,
+                        userVerification: "preferred",
+                        timeout: 60000
+                    }
                 });
 
-                // Biometric success
+                // If we reach here, authentication succeeded
                 const userData = {
-                    uid: "biometric-" + Date.now(),
+                    uid: "passkey-" + Date.now(),
                     name: "Pavan Kumar",
                     role: "Club President",
                     loginTime: new Date().toLocaleString('en-IN'),
@@ -101,19 +94,53 @@
                 localStorage.setItem('cybershield_user', JSON.stringify(userData));
                 localStorage.setItem('cybershield_loggedIn', 'true');
 
-                status.innerHTML = `<span class="success">✅ FACE ID / FINGERPRINT VERIFIED!<br>Welcome back, Operator 👾</span>`;
+                status.innerHTML = `<span class="success">✅ FACE ID / FINGERPRINT VERIFIED!<br>Welcome back 👾</span>`;
 
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1200);
+                setTimeout(() => window.location.href = 'dashboard.html', 1200);
 
-            } catch (error) {
-                status.innerHTML = `❌ Biometric failed or not available.<br>${error.message}<br><br>Use another method.`;
-                console.error(error);
+            } catch (authError) {
+                // If no Passkey exists, register one
+                status.innerHTML = 'No Passkey found. Registering new one...';
+
+                try {
+                    const credential = await navigator.credentials.create({
+                        publicKey: {
+                            challenge: new Uint8Array(32),
+                            rp: { name: "CyberShield Club", id: window.location.hostname },
+                            user: {
+                                id: new Uint8Array(16),
+                                name: "user@cybershield.club",
+                                displayName: "CyberShield Member"
+                            },
+                            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                            timeout: 60000,
+                            attestation: "none"
+                        }
+                    });
+
+                    // Registration successful
+                    const userData = {
+                        uid: "passkey-" + Date.now(),
+                        name: "Pavan Kumar",
+                        role: "Club President",
+                        loginTime: new Date().toLocaleString('en-IN'),
+                        method: "faceid_fingerprint"
+                    };
+
+                    localStorage.setItem('cybershield_user', JSON.stringify(userData));
+                    localStorage.setItem('cybershield_loggedIn', 'true');
+
+                    status.innerHTML = `<span class="success">✅ PASSSKEY REGISTERED!<br>Face ID / Fingerprint ready for instant login</span>`;
+
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+
+                } catch (regError) {
+                    status.innerHTML = `❌ Biometric setup failed.<br>${regError.message}<br><br>Use Google or other method.`;
+                }
             }
         }
 
-        // Google login (kept for completeness)
+        // Google login (kept)
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
@@ -130,9 +157,7 @@
                     localStorage.setItem('cybershield_loggedIn', 'true');
                     window.location.href = 'dashboard.html';
                 })
-                .catch(err => {
-                    document.getElementById('status').innerHTML = `Google Error: ${err.message}`;
-                });
+                .catch(err => document.getElementById('status').innerHTML = `Error: ${err.message}`);
         }
     </script>
 </body>
