@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,15 +30,15 @@
             font-size:1.5rem; 
         }
         .success { color:#ffff00; text-align:center; font-size:1.5rem; }
-        #status { text-align:center; margin:15px 0; min-height:28px; }
+        #status { text-align:center; margin:15px 0; min-height:28px; color:#ff0000; }
     </style>
 </head>
 <body>
     <div class="terminal">
         <h1>root@cybershield:\~$ secure-login</h1>
 
-        <button onclick="signInWithGoogle()" class="google-btn">🚀 Sign in with Google</button>
-        <button onclick="handleBiometric()" class="biometric-btn">👤 LOGIN WITH FACE ID / FINGERPRINT</button>
+        <button onclick="signInWithGoogle()">🚀 Sign in with Google</button>
+        <button onclick="handleBiometric()" class="biometric-btn">👤 LOGIN WITH FINGERPRINT / FACE ID</button>
         <button onclick="window.location.href='login.html'">✉️ Sign in with Email</button>
         <button onclick="window.location.href='login.html'">📱 Sign in with Phone OTP</button>
 
@@ -48,7 +49,7 @@
         </p>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (for Google) -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
@@ -66,81 +67,92 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // ====================== FULL PASSSKEY REGISTRATION + LOGIN ======================
+        // Real Biometric (Fingerprint / Face ID) with WebAuthn
         async function handleBiometric() {
             const status = document.getElementById('status');
-            status.innerHTML = '🔄 Checking for Passkey...';
+            status.innerHTML = '🔄 Preparing biometric verification...';
 
             try {
-                // Try to login first (authenticate)
-                const assertion = await navigator.credentials.get({
+                // First try authentication (login)
+                const authOptions = {
                     publicKey: {
-                        challenge: new Uint8Array(32),
+                        challenge: crypto.getRandomValues(new Uint8Array(32)),
                         rpId: window.location.hostname,
                         userVerification: "preferred",
                         timeout: 60000
                     }
-                });
+                };
 
-                // If we reach here, authentication succeeded
+                const assertion = await navigator.credentials.get(authOptions);
+
+                // Biometric success - store data
                 const userData = {
-                    uid: "passkey-" + Date.now(),
+                    uid: "biometric-" + Date.now(),
                     name: "Pavan Kumar",
                     role: "Club President",
                     loginTime: new Date().toLocaleString('en-IN'),
-                    method: "faceid_fingerprint"
+                    method: "fingerprint_faceid"
                 };
 
                 localStorage.setItem('cybershield_user', JSON.stringify(userData));
                 localStorage.setItem('cybershield_loggedIn', 'true');
 
-                status.innerHTML = `<span class="success">✅ FACE ID / FINGERPRINT VERIFIED!<br>Welcome back 👾</span>`;
+                status.innerHTML = `<span class="success">✅ FINGERPRINT / FACE ID VERIFIED!<br>Welcome back, Operator 👾</span>`;
 
-                setTimeout(() => window.location.href = 'dashboard.html', 1200);
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1200);
 
             } catch (authError) {
-                // If no Passkey exists, register one
-                status.innerHTML = 'No Passkey found. Registering new one...';
+                // No credential found → Register new Passkey
+                status.innerHTML = 'No Passkey found. Registering new biometric...';
 
                 try {
-                    const credential = await navigator.credentials.create({
+                    const regOptions = {
                         publicKey: {
-                            challenge: new Uint8Array(32),
-                            rp: { name: "CyberShield Club", id: window.location.hostname },
+                            challenge: crypto.getRandomValues(new Uint8Array(32)),
+                            rp: { 
+                                name: "CyberShield Club", 
+                                id: window.location.hostname 
+                            },
                             user: {
-                                id: new Uint8Array(16),
-                                name: "user@cybershield.club",
-                                displayName: "CyberShield Member"
+                                id: crypto.getRandomValues(new Uint8Array(16)),
+                                name: "pavan@cybershield.club",
+                                displayName: "Pavan Kumar"
                             },
                             pubKeyCredParams: [{ type: "public-key", alg: -7 }],
                             timeout: 60000,
                             attestation: "none"
                         }
-                    });
+                    };
 
-                    // Registration successful
+                    const credential = await navigator.credentials.create(regOptions);
+
+                    // Registration success - store data
                     const userData = {
-                        uid: "passkey-" + Date.now(),
+                        uid: "biometric-" + Date.now(),
                         name: "Pavan Kumar",
                         role: "Club President",
                         loginTime: new Date().toLocaleString('en-IN'),
-                        method: "faceid_fingerprint"
+                        method: "fingerprint_faceid"
                     };
 
                     localStorage.setItem('cybershield_user', JSON.stringify(userData));
                     localStorage.setItem('cybershield_loggedIn', 'true');
 
-                    status.innerHTML = `<span class="success">✅ PASSSKEY REGISTERED!<br>Face ID / Fingerprint ready for instant login</span>`;
+                    status.innerHTML = `<span class="success">✅ BIOMETRIC REGISTERED!<br>Fingerprint / Face ID is now active for instant login</span>`;
 
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
 
                 } catch (regError) {
-                    status.innerHTML = `❌ Biometric setup failed.<br>${regError.message}<br><br>Use Google or other method.`;
+                    status.innerHTML = `❌ Biometric not available or cancelled.<br>${regError.message}<br><br>Use Google or other method.`;
                 }
             }
         }
 
-        // Google login (kept)
+        // Google login (kept for completeness)
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
@@ -157,7 +169,7 @@
                     localStorage.setItem('cybershield_loggedIn', 'true');
                     window.location.href = 'dashboard.html';
                 })
-                .catch(err => document.getElementById('status').innerHTML = `Error: ${err.message}`);
+                .catch(err => document.getElementById('status').innerHTML = `Google Error: ${err.message}`);
         }
     </script>
 </body>
