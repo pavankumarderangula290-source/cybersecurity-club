@@ -3,79 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Dashboard • CyberShield</title>
+    <title>Dashboard • CyberShield Club</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background:#0a0a0a; color:#00ff41; font-family:'VT323',monospace; margin:0; padding:20px; }
-        .terminal { max-width:900px; margin:20px auto; background:#111; border:3px solid #00ff41; padding:30px; }
+        body { background:#0a0a0a; color:#00ff41; font-family:'Exo 2',sans-serif; margin:0; padding:20px; }
+        .terminal { max-width:1000px; margin:30px auto; background:#111; border:3px solid #00ff41; padding:30px; }
         .nav { text-align:center; margin-bottom:30px; }
-        .nav a { color:#00ff41; margin:0 15px; text-decoration:none; }
-        h1, h2 { text-align:center; }
+        .nav a { color:#00ff41; margin:0 15px; text-decoration:none; font-size:1.1rem; }
+        h1 { text-align:center; }
+        .user-card {
+            background:rgba(0,255,65,0.08); border:2px solid #00ff41; padding:25px; margin:30px 0;
+            border-radius:8px; text-align:center;
+        }
+        .user-card strong { color:#ffff00; }
         table { width:100%; border-collapse:collapse; margin:20px 0; }
-        th, td { border:2px solid #00ff41; padding:10px; text-align:left; }
+        th, td { border:2px solid #00ff41; padding:12px; text-align:left; }
         th { background:#1a1a1a; }
+        button.logout {
+            background:#ff003c; color:#fff; border:none; padding:14px 40px; font-size:1.3rem;
+            cursor:pointer; margin-top:30px;
+        }
+        button.logout:hover { background:#ff3366; }
     </style>
 </head>
 <body>
     <div class="terminal">
         <div class="nav">
             <a href="index.html">HOME</a>
-            <a href="upload.html">UPLOAD FILE</a>
+            <a href="tools.html">🛠️ TOOLS</a>
+            <a href="upload.html">📤 UPLOAD FILE</a>
             <a href="#" onclick="logout()">LOGOUT</a>
         </div>
+
         <h1>root@cybershield:\~$ dashboard</h1>
-        <h2 id="welcome"></h2>
+
+        <div class="user-card" id="userCard"></div>
 
         <h2>Your Role in CyberShield GitHub Repo</h2>
         <div id="roleDisplay"></div>
 
-        <h2>Club Members & Roles (Live from GitHub)</h2>
+        <h2>Club Members &amp; Live GitHub Contributors</h2>
         <table id="membersTable">
-            <tr><th>Member</th><th>GitHub Role</th><th>Contributions</th></tr>
+            <tr><th>Member</th><th>Role</th><th>Contributions</th></tr>
         </table>
     </div>
 
-    <script>
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
-        // Check if logged in
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBnCzY0sxEfiZqAMA0yugpO9mmIHPlX1s0",
+          authDomain: "cybershield-club.firebaseapp.com",
+          projectId: "cybershield-club",
+          storageBucket: "cybershield-club.firebasestorage.app",
+          messagingSenderId: "454111504815",
+          appId: "1:454111504815:web:c753796cb90fe6d467675a",
+          measurementId: "G-3SDS5GVM43"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check login
         if (!localStorage.getItem('cybershield_loggedIn')) {
             window.location.href = 'login.html';
         }
 
-        const username = localStorage.getItem('cybershield_username') || 'Member';
-        document.getElementById('welcome').innerHTML = `Welcome back, <span style="color:#ffff00">${username}</span> 👾`;
+        const userData = JSON.parse(localStorage.getItem('cybershield_user')) || {};
 
-        // Display your personal role (you can expand this)
-        const roleHTML = `
+        // Show user card
+        document.getElementById('userCard').innerHTML = `
+            <h2>Welcome back, <strong>${userData.name || 'Operator'}</strong> 👾</h2>
+            <p><strong>Method:</strong> ${userData.method ? userData.method.toUpperCase() : 'Phone OTP'}<br>
+               <strong>${userData.email ? 'Email' : 'Mobile'}:</strong> ${userData.email || userData.mobile}<br>
+               <strong>Logged in:</strong> ${userData.loginTime}</p>
+            <p style="color:#ffff00; margin-top:15px;">✅ Verified Member • CyberShield Club</p>
+        `;
+
+        // Your personal role
+        document.getElementById('roleDisplay').innerHTML = `
             <p style="font-size:1.4rem; text-align:center;">
                 Your Role: <strong style="color:#ffff00">ADMIN / CORE OPERATOR</strong><br>
                 Repo: pavankumarderangula290-source/cybersecurity-club
             </p>`;
-        document.getElementById('roleDisplay').innerHTML = roleHTML;
 
-        // Fetch real GitHub contributors (public API - no token needed)
+        // Live GitHub contributors
         fetch('https://api.github.com/repos/pavankumarderangula290-source/cybersecurity-club/contributors')
             .then(res => res.json())
             .then(data => {
                 const table = document.getElementById('membersTable');
-                data.forEach(contributor => {
+                data.forEach(c => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><a href="\( {contributor.html_url}" target="_blank" style="color:#00ff41;"> \){contributor.login}</a></td>
-                        <td>Contributor</td>
-                        <td>${contributor.contributions} commits</td>`;
+                    row.innerHTML = `<td><a href="\( {c.html_url}" target="_blank" style="color:#00ff41;"> \){c.login}</a></td>
+                                     <td>Contributor</td>
+                                     <td>${c.contributions} commits</td>`;
                     table.appendChild(row);
                 });
             })
-            .catch(() => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="3" style="color:#ff0000; text-align:center;">GitHub API temporarily unavailable — showing demo data</td>`;
-                document.getElementById('membersTable').appendChild(row);
+            .catch(() => {});
+
+        // Logout function (clears Firebase + localStorage)
+        function logout() {
+            auth.signOut().then(() => {
+                localStorage.clear();
+                window.location.href = 'login.html';
             });
+        }
     </script>
 </body>
 </html>
