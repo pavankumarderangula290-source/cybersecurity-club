@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools • CyberShield Club</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background:#0a0a0a; color:#00ff41; font-family:'Exo 2',sans-serif; margin:0; padding:20px; }
+        .terminal { max-width:1100px; margin:30px auto; background:#111; border:3px solid #00ff41; padding:30px; }
+        h1 { text-align:center; font-family:'Orbitron',monospace; }
+        .category { margin:40px 0; }
+        .category h2 { color:#00d4ff; border-bottom:2px solid #00ff41; padding-bottom:8px; }
+        .tools-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px; }
+        .tool-card {
+            background:rgba(0,255,65,0.05); border:1px solid #00ff41; padding:20px;
+            transition:all 0.3s; clip-path:polygon(8px 0%,100% 0%,calc(100%-8px)100%,0 100%);
+        }
+        .tool-card:hover { transform:translateY(-8px); box-shadow:0 0 30px rgba(0,255,65,0.4); }
+        .tool-name { font-size:1.3rem; margin-bottom:8px; color:#fff; }
+        .tool-desc { color:#c8ffd4; line-height:1.5; }
+        .tool-link { color:#00d4ff; text-decoration:none; font-size:0.9rem; margin-top:12px; display:inline-block; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <h1>root@cybershield:\~$ tools --arsenal</h1>
+        <p style="text-align:center; color:#ffff00;">CyberShield Official Tool Kit • Updated 2026</p>
+
+        <div class="category">
+            <h2>01 RECON & OSINT</h2>
+            <div class="tools-grid">
+                <div class="tool-card"><div class="tool-name">Maltego</div><div class="tool-desc">Visual link analysis & OSINT graphing</div><a href="https://www.maltego.com" class="tool-link" target="_blank">→ Launch</a></div>
+                <div class="tool-card"><div class="tool-name">theHarvester</div><div class="tool-desc">Email, subdomain & employee enumeration</div><a href="https://github.com/laramies/theHarvester" class="tool-link" target="_blank">→ GitHub</a></div>
+                <div class="tool-card"><div class="tool-name">Recon-ng</div><div class="tool-desc">Modular web reconnaissance framework</div><a href="https://github.com/lanmaster53/recon-ng" class="tool-link" target="_blank">→ GitHub</a></div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>02 SCANNING & ENUMERATION</h2>
+            <div class="tools-grid">
+                <div class="tool-card"><div class="tool-name">Nmap</div><div class="tool-desc">Network discovery & security auditing</div><a href="https://nmap.org" class="tool-link" target="_blank">→ Official</a></div>
+                <div class="tool-card"><div class="tool-name">Masscan</div><div class="tool-desc">Internet-scale port scanner</div><a href="https://github.com/robertdavidgraham/masscan" class="tool-link" target="_blank">→ GitHub</a></div>
+                <div class="tool-card"><div class="tool-name">Nikto</div><div class="tool-desc">Web server scanner</div><a href="https://cirt.net/nikto2" class="tool-link" target="_blank">→ Official</a></div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>03 EXPLOITATION & WEB</h2>
+            <div class="tools-grid">
+                <div class="tool-card"><div class="tool-name">Burp Suite</div><div class="tool-desc">Web vulnerability scanner & proxy</div><a href="https://portswigger.net/burp" class="tool-link" target="_blank">→ Download</a></div>
+                <div class="tool-card"><div class="tool-name">SQLMap</div><div class="tool-desc">Automatic SQL injection tool</div><a href="https://sqlmap.org" class="tool-link" target="_blank">→ Official</a></div>
+                <div class="tool-card"><div class="tool-name">Metasploit</div><div class="tool-desc">Penetration testing framework</div><a href="https://www.metasploit.com" class="tool-link" target="_blank">→ Official</a></div>
+            </div>
+        </div>
+
+        <p style="text-align:center;margin-top:40px;">
+            <a href="dashboard.html" style="color:#00ff41;">← Back to Dashboard</a> | 
+            <a href="index.html" style="color:#00ff41;">Home</a>
+        </p>
+    </div>
+</body>
+</html>
