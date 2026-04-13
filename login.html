@@ -3,75 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login • CyberShield Club</title>
+    <title>Login • CyberShield</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body {
-            background: #0a0a0a;
-            color: #00ff41;
-            font-family: 'VT323', monospace;
-            margin: 0;
-            padding: 0;
-            line-height: 1.4;
-        }
-        .terminal {
-            max-width: 800px;
-            margin: 50px auto;
-            background: #111;
-            border: 3px solid #00ff41;
-            padding: 30px;
-            box-shadow: 0 0 30px #00ff41;
-        }
-        h1 { text-align: center; margin-bottom: 30px; }
-        input, button {
-            font-family: 'VT323', monospace;
-            font-size: 1.2rem;
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #000;
-            color: #00ff41;
-            border: 2px solid #00ff41;
-        }
-        button {
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        button:hover { background: #00ff41; color: #000; }
-        .error { color: #ff0000; text-align: center; }
+        body { background:#0a0a0a; color:#00ff41; font-family:'VT323',monospace; margin:0; padding:0; }
+        .terminal { max-width:620px; margin:60px auto; background:#111; border:4px solid #00ff41; padding:40px; box-shadow:0 0 40px #00ff41; }
+        input, button { font-family:'VT323',monospace; font-size:1.4rem; width:100%; padding:14px; margin:12px 0; background:#000; color:#00ff41; border:2px solid #00ff41; }
+        button { cursor:pointer; transition:0.3s; }
+        button:hover { background:#00ff41; color:#000; }
+        .recaptcha-container { margin:20px 0; }
+        .success { color:#ffff00; text-align:center; font-size:1.5rem; }
+        #status { text-align:center; margin:15px 0; min-height:28px; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1>root@cybershield:\~$ login</h1>
-        <form id="loginForm">
-            <label>GitHub Username / Member ID</label>
-            <input type="text" id="username" placeholder="e.g. pavanderangula" required>
-            <label>Password (demo: club2026)</label>
-            <input type="password" id="password" required>
-            <button type="submit">AUTHENTICATE</button>
-        </form>
-        <p class="error" id="errorMsg"></p>
-        <p style="text-align:center; margin-top:30px; font-size:1.1rem;">
+        <h1 style="text-align:center;">root@cybershield:\~$ secure-login</h1>
+        
+        <div id="step1">
+            <label>📱 Mobile Number (with country code)</label>
+            <input type="tel" id="mobile" placeholder="+91 9876543210" required>
+            <div id="recaptcha-container" class="recaptcha-container"></div>
+            <button onclick="sendOTP()">SEND REAL SMS OTP</button>
+            <div id="status"></div>
+        </div>
+
+        <div id="step2" style="display:none;">
+            <label>🔢 Enter 6-digit OTP sent to your phone</label>
+            <input type="text" id="otp" maxlength="6" placeholder="123456">
+            <button onclick="verifyOTP()">VERIFY OTP</button>
+            <div id="status2" style="color:#ff0000;"></div>
+        </div>
+
+        <p style="text-align:center;margin-top:30px;">
             <a href="index.html" style="color:#00ff41;">← Back to Home</a>
         </p>
     </div>
 
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
+    <!-- Firebase SDK (compat version - perfect for GitHub Pages) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
-            // Demo credentials (you can add more members here)
-            if (password === 'club2026') {
-                localStorage.setItem('cybershield_loggedIn', 'true');
-                localStorage.setItem('cybershield_username', username);
-                window.location.href = 'dashboard.html';
-            } else {
-                document.getElementById('errorMsg').textContent = 'ACCESS DENIED — Incorrect credentials';
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnC2Y0sxEfizqAMA0yugO9vmIHPLX1s0",
+            authDomain: "cybershield-club.firebaseapp.com",
+            projectId: "cybershield-club",
+            storageBucket: "cybershield-club.firebasestorage.app",
+            messagingSenderId: "454111504815",
+            appId: "1:454111504815:web:c75379c6b90fe6d467675a",
+            measurementId: "G-3SD5SGVM43"
+        };
+
+        let confirmationResult;
+        let userMobile = "";
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function setupRecaptcha() {
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                'size': 'invisible',
+                'callback': function(response) {}
+            });
+        }
+
+        function sendOTP() {
+            const mobileInput = document.getElementById('mobile').value.trim();
+            if (!mobileInput.startsWith('+')) {
+                document.getElementById('status').innerHTML = `<span style="color:#ff0000">Use international format (+91 ...)</span>`;
+                return;
             }
-        });
+
+            userMobile = mobileInput;
+            document.getElementById('status').innerHTML = `Sending OTP to <strong>${userMobile}</strong>...`;
+
+            setupRecaptcha();
+
+            const appVerifier = window.recaptchaVerifier;
+            auth.signInWithPhoneNumber(userMobile, appVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    document.getElementById('status').innerHTML = `✅ OTP SENT! Check your SMS.`;
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('step2').style.display = 'block';
+                })
+                .catch((error) => {
+                    document.getElementById('status').innerHTML = `<span style="color:#ff0000">Error: ${error.message}</span>`;
+                    console.error(error);
+                });
+        }
+
+        function verifyOTP() {
+            const code = document.getElementById('otp').value.trim();
+            if (!code || code.length !== 6) {
+                document.getElementById('status2').textContent = 'Enter valid 6-digit OTP';
+                return;
+            }
+
+            confirmationResult.confirm(code)
+                .then((result) => {
+                    const userData = {
+                        uid: result.user.uid,
+                        mobile: userMobile,
+                        name: "Pavan Kumar",
+                        role: "Club President",
+                        loginTime: new Date().toLocaleString('en-IN')
+                    };
+
+                    localStorage.setItem('cybershield_user', JSON.stringify(userData));
+                    localStorage.setItem('cybershield_loggedIn', 'true');
+
+                    document.getElementById('status2').innerHTML = `<span class="success">✅ VERIFIED SUCCESSFULLY!<br>Redirecting to dashboard...</span>`;
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                })
+                .catch((error) => {
+                    document.getElementById('status2').innerHTML = `<span style="color:#ff0000">Invalid OTP or expired. Try again.</span>`;
+                });
+        }
     </script>
 </body>
 </html>
