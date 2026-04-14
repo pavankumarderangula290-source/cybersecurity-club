@@ -6,21 +6,77 @@
     <title>Tools Arsenal • CyberShield Club</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background:#0a0a0a; color:#00ff41; font-family:'VT323',monospace; margin:0; padding:20px; }
-        .terminal { max-width:1100px; margin:30px auto; background:#111; border:3px solid #00ff41; padding:30px; }
-        h1 { text-align:center; font-size:2rem; }
-        .tool-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(500px,1fr)); gap:25px; }
-        .tool-card {
-            background:rgba(0,255,65,0.05); border:2px solid #00ff41; padding:25px;
-            transition:0.3s; clip-path:polygon(8px 0%,100% 0%,calc(100%-8px)100%,0 100%);
+        body { 
+            background:#0a0a0a; 
+            color:#00ff41; 
+            font-family:'VT323',monospace; 
+            margin:0; 
+            padding:20px; 
         }
-        .tool-card:hover { transform:translateY(-10px); box-shadow:0 0 30px rgba(0,255,65,0.5); }
-        input, button { font-family:'VT323',monospace; font-size:1.4rem; padding:12px; margin:10px 0; background:#000; color:#00ff41; border:2px solid #00ff41; width:100%; }
-        button { cursor:pointer; }
-        button:hover { background:#00ff41; color:#000; }
-        .output { margin-top:20px; background:#000; padding:15px; border:1px solid #00ff41; min-height:160px; white-space:pre-wrap; font-size:1.2rem; }
-        .live { color:#ffff00; animation:blink 1s infinite; }
-        @keyframes blink { 50% { opacity:0; } }
+        .terminal { 
+            max-width:1100px; 
+            margin:30px auto; 
+            background:#111; 
+            border:3px solid #00ff41; 
+            padding:30px; 
+        }
+        h1 { 
+            text-align:center; 
+            font-size:2rem; 
+        }
+        .tool-grid { 
+            display:grid; 
+            grid-template-columns:repeat(auto-fit,minmax(500px,1fr)); 
+            gap:25px; 
+        }
+        .tool-card {
+            background:rgba(0,255,65,0.05); 
+            border:2px solid #00ff41; 
+            padding:25px;
+            transition:0.3s; 
+            clip-path:polygon(8px 0%,100% 0%,calc(100%-8px)100%,0 100%);
+        }
+        .tool-card:hover { 
+            transform:translateY(-10px); 
+            box-shadow:0 0 30px rgba(0,255,65,0.5); 
+        }
+        input, button, select { 
+            font-family:'VT323',monospace; 
+            font-size:1.4rem; 
+            padding:12px; 
+            margin:10px 0; 
+            background:#000; 
+            color:#00ff41; 
+            border:2px solid #00ff41; 
+            width:100%; 
+        }
+        button { 
+            cursor:pointer; 
+        }
+        button:hover { 
+            background:#00ff41; 
+            color:#000; 
+        }
+        select {
+            cursor:pointer;
+        }
+        .output { 
+            margin-top:20px; 
+            background:#000; 
+            padding:15px; 
+            border:1px solid #00ff41; 
+            min-height:160px; 
+            white-space:pre-wrap; 
+            font-size:1.2rem; 
+            overflow-wrap:break-word;
+        }
+        .live { 
+            color:#ffff00; 
+            animation:blink 1s infinite; 
+        }
+        @keyframes blink { 
+            50% { opacity:0; } 
+        }
     </style>
 </head>
 <body>
@@ -50,6 +106,37 @@
                 <h2>🔑 Password Strength Auditor + Breach Check</h2>
                 <input type="text" id="password" placeholder="Enter password to test" onkeyup="checkPassword()">
                 <div id="password-output" class="output">Type a password above...</div>
+            </div>
+
+            <!-- NEW TOOL 1: IP Geolocation -->
+            <div class="tool-card">
+                <h2>🌐 IP Geolocation Lookup (Real-time Recon)</h2>
+                <input type="text" id="ip-input" placeholder="Enter IP (leave blank for your own IP)">
+                <button onclick="ipLookup()">LOOKUP IP LOCATION</button>
+                <div id="ip-output" class="output">Click button to get geolocation data...</div>
+            </div>
+
+            <!-- NEW TOOL 2: Hash Generator -->
+            <div class="tool-card">
+                <h2>🔐 Hash Generator (Client-side • SHA-256 / SHA-512)</h2>
+                <input type="text" id="hash-input" placeholder="Text to hash (e.g. password or payload)">
+                <select id="hash-algorithm">
+                    <option value="SHA-256">SHA-256</option>
+                    <option value="SHA-512">SHA-512</option>
+                </select>
+                <button onclick="generateHash()">GENERATE HASH</button>
+                <div id="hash-output" class="output">Enter text and choose algorithm...</div>
+            </div>
+
+            <!-- NEW TOOL 3: Base64 Encoder/Decoder -->
+            <div class="tool-card">
+                <h2>📧 Base64 Encoder / Decoder (Client-side)</h2>
+                <input type="text" id="base-input" placeholder="Enter text or Base64 string">
+                <div style="display:flex; gap:10px;">
+                    <button onclick="encodeBase64()" style="width:50%;">ENCODE → BASE64</button>
+                    <button onclick="decodeBase64()" style="width:50%;">DECODE ← BASE64</button>
+                </div>
+                <div id="base-output" class="output">Type above and click encode/decode...</div>
             </div>
 
         </div>
@@ -129,6 +216,113 @@
                 Has Number: ${/[0-9]/.test(pass) ? 'Yes' : 'No'}<br>
                 Has Symbol: ${/[^A-Za-z0-9]/.test(pass) ? 'Yes' : 'No'}
             `;
+        }
+
+        // === NEW TOOL 1: IP Geolocation Lookup ===
+        async function ipLookup() {
+            const ipInput = document.getElementById('ip-input').value.trim();
+            const output = document.getElementById('ip-output');
+            output.innerHTML = '🔄 Querying IP geolocation...';
+
+            const url = ipInput ? `https://ipapi.co/${ipInput}/json/` : 'https://ipapi.co/json/';
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.error) {
+                    output.innerHTML = `❌ ${data.reason || 'Invalid IP'}`;
+                    return;
+                }
+
+                let html = `
+                    <span class="live">● LIVE</span><br>
+                    IP: <strong>${data.ip || ipInput || 'Your IP'}</strong><br>
+                    Country: ${data.country_name} (${data.country_code})<br>
+                    City: ${data.city || 'N/A'}<br>
+                    Region: ${data.region || 'N/A'}<br>
+                    ISP: ${data.org || 'N/A'}<br>
+                    Coordinates: ${data.latitude}, ${data.longitude}<br>
+                    <small style="color:#ffff00;">Client-side • No data stored</small>
+                `;
+                output.innerHTML = html;
+            } catch(e) {
+                output.innerHTML = '❌ Error fetching IP data (API may be temporarily limited). Try again in 30s.';
+            }
+        }
+
+        // === NEW TOOL 2: Hash Generator ===
+        async function generateHash() {
+            const text = document.getElementById('hash-input').value;
+            const algo = document.getElementById('hash-algorithm').value;
+            const output = document.getElementById('hash-output');
+
+            if (!text) {
+                output.innerHTML = 'Enter text to hash...';
+                return;
+            }
+
+            output.innerHTML = '🔄 Computing secure hash (Web Crypto)...';
+
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(text);
+                const hashBuffer = await crypto.subtle.digest(algo, data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+                output.innerHTML = `
+                    <span class="live">● LIVE</span><br>
+                    Algorithm: <strong>${algo}</strong><br>
+                    Input length: ${text.length} chars<br>
+                    Hash:<br>
+                    <strong style="word-break:break-all;">${hashHex}</strong><br><br>
+                    <small style="color:#ffff00;">✅ Fully client-side • Never leaves your browser</small>
+                `;
+            } catch(e) {
+                output.innerHTML = '❌ Hashing failed (browser support issue)';
+            }
+        }
+
+        // === NEW TOOL 3: Base64 Encoder/Decoder ===
+        function encodeBase64() {
+            const input = document.getElementById('base-input').value;
+            const output = document.getElementById('base-output');
+            if (!input) {
+                output.innerHTML = 'Enter text to encode...';
+                return;
+            }
+            try {
+                const encoded = btoa(input);
+                output.innerHTML = `
+                    <span class="live">● LIVE</span><br>
+                    <strong>Encoded Base64:</strong><br>
+                    ${encoded}<br><br>
+                    <small style="color:#ffff00;">✅ Client-side only</small>
+                `;
+            } catch(e) {
+                output.innerHTML = '❌ Cannot encode (use ASCII text only)';
+            }
+        }
+
+        function decodeBase64() {
+            const input = document.getElementById('base-input').value;
+            const output = document.getElementById('base-output');
+            if (!input) {
+                output.innerHTML = 'Enter Base64 string to decode...';
+                return;
+            }
+            try {
+                const decoded = atob(input);
+                output.innerHTML = `
+                    <span class="live">● LIVE</span><br>
+                    <strong>Decoded Text:</strong><br>
+                    ${decoded}<br><br>
+                    <small style="color:#ffff00;">✅ Client-side only</small>
+                `;
+            } catch(e) {
+                output.innerHTML = '❌ Invalid Base64 string';
+            }
         }
 
         // Auto load GitHub stats on page load
